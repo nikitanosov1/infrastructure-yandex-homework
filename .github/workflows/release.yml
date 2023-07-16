@@ -116,5 +116,5 @@ jobs:
         with:
           issue-number: ${{ needs.release.outputs.issueNumber }}
           comment: |
-            ## Close Issue
+            ## Close Issue 
             Issue automatically closed on successful deployment
