@@ -19,3 +19,60 @@ jobs:
 
       - name: Run Lint
         run: npm run lint
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test-ci |& tee unit-results.txt
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: unit-results
+          path: test-report.html
+          retention-days: 30
+
+  e2e-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download browsers for e2e tests
+        run: npx playwright install --with-deps
+
+      - name: Download xvfb
+        run: |
+          sudo apt update
+          sudo apt-get install xvfb -y
+
+      - name: Run e2e tests
+        run: xvfb-run npx playwright test
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-results
+          path: playwright-report/
+          retention-days: 30
